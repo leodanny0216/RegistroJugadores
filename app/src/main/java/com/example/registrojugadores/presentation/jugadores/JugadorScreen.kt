@@ -2,6 +2,9 @@ package com.example.registrojugadores.presentation.jugadores
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,16 +41,21 @@ fun JugadorScreen(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Gray,
+                    titleContentColor = Color.White
+                )
             )
         }
+
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFEDE7F6), Color(0xFF7E57C2))
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1)) // Azul oscuro
                     )
                 )
                 .padding(padding)
@@ -57,7 +65,7 @@ fun JugadorScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.95f), shape = MaterialTheme.shapes.medium)
+                    .background(Color.Gray.copy(alpha = 0.95f), shape = MaterialTheme.shapes.medium)
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
@@ -94,6 +102,12 @@ fun JugadorScreen(
                             .weight(1f)
                             .padding(end = 8.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cancelar",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text("Cancelar")
                     }
 
@@ -114,9 +128,16 @@ fun JugadorScreen(
                             .weight(1f)
                             .padding(start = 8.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Guardar",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text("Guardar")
                     }
                 }
+
             }
         }
     }
