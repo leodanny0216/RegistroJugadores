@@ -44,7 +44,7 @@ fun DashboardScreen(navController: NavController) {
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF4E71FF)
+                    containerColor = Color(0xFF0D47A1)
                 )
             )
         }
@@ -54,9 +54,10 @@ fun DashboardScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF5F5F5), Color(0xFF7E57C2))
+                        colors = listOf(Color(0xFFF5F5F5), Color(0xFF0D47A1)) // Azul oscuro
                     )
                 )
+
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp),
@@ -67,7 +68,7 @@ fun DashboardScreen(navController: NavController) {
                 style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4E71FF),
+                    color = Color(0xFF0D47A1),
                     textAlign = TextAlign.Center
                 ),
                 modifier = Modifier.fillMaxWidth()
@@ -80,7 +81,7 @@ fun DashboardScreen(navController: NavController) {
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4E71FF),
+                    containerColor = Color(0xFF0D47A1),
                     contentColor = Color.White
                 )
             ) {
