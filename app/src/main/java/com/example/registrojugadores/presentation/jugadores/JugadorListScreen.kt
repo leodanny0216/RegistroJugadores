@@ -57,9 +57,10 @@ fun JugadorListScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF60B5FF), Color(0xFF60B5FF))
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1)) // Azul oscuro
                     )
                 )
+
                 .padding(paddingValues)
                 .padding(horizontal = 18.dp, vertical = 18.dp)
         ) {
@@ -91,6 +92,7 @@ fun JugadorRow(
     onEdit: (JugadorEntity) -> Unit
 ) {
     Card(
+
         elevation = CardDefaults.cardElevation(14.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
