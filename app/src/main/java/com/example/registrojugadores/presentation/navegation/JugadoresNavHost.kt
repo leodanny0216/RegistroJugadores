@@ -1,12 +1,18 @@
 package com.example.registrojugadores.presentation.navegation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.registrojugadores.data.local.entity.JugadorEntity
 import com.example.registrojugadores.presentation.home.DashboardScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorListScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorScreen
@@ -47,11 +53,17 @@ fun JugadoresNavHost(
         composable<Screen.Jugador> { backStackEntry ->
             val jugadorId = backStackEntry.toRoute<Screen.Jugador>().jugadorId
             val scope = rememberCoroutineScope()
-            val jugador = jugadorViewModel.getJugadorById(jugadorId)
+            var jugador by remember { mutableStateOf<JugadorEntity?>(null) }
+
+            LaunchedEffect(jugadorId) {
+                if (jugadorId != null) {
+                    jugador = jugadorViewModel.getJugadorById(jugadorId)
+                }
+            }
 
             JugadorScreen(
                 jugador = jugador,
-                agregarJugador = { nombres, partidas ->
+                onSaveJugador = { nombres, partidas ->
                     scope.launch {
                         jugadorViewModel.saveJugador(
                             nombres = nombres,
@@ -66,5 +78,6 @@ fun JugadoresNavHost(
                 }
             )
         }
+
     }
 }

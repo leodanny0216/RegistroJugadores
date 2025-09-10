@@ -2,6 +2,7 @@ package com.example.registrojugadores.presentation.jugadores
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -21,12 +22,13 @@ import com.example.registrojugadores.data.local.entity.JugadorEntity
 @Composable
 fun JugadorScreen(
     jugador: JugadorEntity?,
-    agregarJugador: (String, Int) -> Unit,
+    onSaveJugador: (String, Int) -> Unit,
     onCancel: () -> Unit
 ) {
     var nombres by remember { mutableStateOf(jugador?.Nombres ?: "") }
-    var partidas by remember { mutableStateOf(jugador?.Partidas?.toString() ?: "0") }
-    var error by remember { mutableStateOf<String?>(null) }
+    var partidas by remember { mutableStateOf(jugador?.Partidas?.toString() ?: "") }
+    var nombreError by remember { mutableStateOf<String?>(null) }
+    var partidasError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -48,14 +50,13 @@ fun JugadorScreen(
                 )
             )
         }
-
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1)) // Azul oscuro
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))
                     )
                 )
                 .padding(padding)
@@ -65,30 +66,39 @@ fun JugadorScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Gray.copy(alpha = 0.95f), shape = MaterialTheme.shapes.medium)
+                    .background(
+                        Color.Gray.copy(alpha = 0.95f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 OutlinedTextField(
                     value = nombres,
-                    onValueChange = { nombres = it },
+                    onValueChange = {
+                        nombres = it
+                        if (it.isNotBlank()) nombreError = null
+                    },
                     label = { Text("Nombre del Jugador") },
+                    isError = nombreError != null,
                     modifier = Modifier.fillMaxWidth()
                 )
+                nombreError?.let {
+                    Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
 
                 OutlinedTextField(
                     value = partidas,
-                    onValueChange = { partidas = it },
+                    onValueChange = {
+                        partidas = it
+                        if (it.toIntOrNull() != null) partidasError = null
+                    },
                     label = { Text("Partidas") },
+                    isError = partidasError != null,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                error?.let {
-                    Text(
-                        text = it,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                partidasError?.let {
+                    Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                 }
 
                 Row(
@@ -113,14 +123,23 @@ fun JugadorScreen(
 
                     Button(
                         onClick = {
-                            when {
-                                nombres.isBlank() -> error = "El nombre es requerido"
-                                partidas.isBlank() -> error = "Las partidas son requeridas"
-                                partidas.toIntOrNull() == null -> error = "Partidas debe ser un número"
-                                else -> {
-                                    error = null
-                                    agregarJugador(nombres, partidas.toInt())
-                                }
+                            var valid = true
+
+                            if (nombres.isBlank()) {
+                                nombreError = "El nombre es requerido"
+                                valid = false
+                            }
+                            val partidasInt = partidas.toIntOrNull()
+                            if (partidas.isBlank()) {
+                                partidasError = "Las partidas son requeridas"
+                                valid = false
+                            } else if (partidasInt == null) {
+                                partidasError = "Debe ser un número válido"
+                                valid = false
+                            }
+
+                            if (valid) {
+                                onSaveJugador(nombres, partidasInt!!)
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
@@ -137,7 +156,6 @@ fun JugadorScreen(
                         Text("Guardar")
                     }
                 }
-
             }
         }
     }
