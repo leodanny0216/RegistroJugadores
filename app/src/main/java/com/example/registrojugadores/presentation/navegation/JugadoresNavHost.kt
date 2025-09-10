@@ -2,6 +2,7 @@ package com.example.registrojugadores.presentation.navegation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,6 +11,7 @@ import com.example.registrojugadores.presentation.home.DashboardScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorListScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun JugadoresNavHost(
@@ -44,17 +46,20 @@ fun JugadoresNavHost(
 
         composable<Screen.Jugador> { backStackEntry ->
             val jugadorId = backStackEntry.toRoute<Screen.Jugador>().jugadorId
+            val scope = rememberCoroutineScope()
             val jugador = jugadorViewModel.getJugadorById(jugadorId)
 
             JugadorScreen(
                 jugador = jugador,
                 agregarJugador = { nombres, partidas ->
-                    if (jugador == null) {
-                        jugadorViewModel. agregarJugador(nombres, partidas)
-                    } else {
-                        jugadorViewModel.update(jugador.copy(Nombres = nombres, Partidas = partidas))
+                    scope.launch {
+                        jugadorViewModel.saveJugador(
+                            nombres = nombres,
+                            partidas = partidas,
+                            id = jugador?.JugadorId
+                        )
+                        navHostController.popBackStack()
                     }
-                    navHostController.popBackStack()
                 },
                 onCancel = {
                     navHostController.popBackStack()

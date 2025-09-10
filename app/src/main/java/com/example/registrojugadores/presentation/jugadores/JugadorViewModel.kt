@@ -15,20 +15,19 @@ class JugadorViewModel @Inject constructor(
 ) : ViewModel() {
 
     val jugadorList: StateFlow<List<JugadorEntity>> = repository.getAll()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+            initialValue = emptyList()
+        )
 
-    fun agregarJugador(nombres: String, partidas: Int) {
+    fun saveJugador(nombres: String, partidas: Int, id: Int? = null) {
         viewModelScope.launch {
             val jugador = JugadorEntity(
+                JugadorId = id,
                 Nombres = nombres,
                 Partidas = partidas
             )
-            saveJugador(jugador)
-        }
-    }
-
-    fun saveJugador(jugador: JugadorEntity) {
-        viewModelScope.launch {
             repository.save(jugador)
         }
     }
@@ -40,9 +39,10 @@ class JugadorViewModel @Inject constructor(
     }
 
     fun update(jugador: JugadorEntity) {
-        saveJugador(jugador)
+        viewModelScope.launch {
+            repository.save(jugador)
+        }
     }
-
     fun getJugadorById(id: Int?): JugadorEntity? {
         return jugadorList.value.find { it.JugadorId == id }
     }
