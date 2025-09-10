@@ -85,6 +85,7 @@ fun JugadorListScreen(
     }
 }
 
+
 @Composable
 fun JugadorRow(
     jugador: JugadorEntity,
