@@ -86,8 +86,6 @@ fun PartidaListScreen(
         }
     }
 }
-
-
 @Composable
 fun PartidaRow(
     partida: PartidaEntity,
@@ -96,8 +94,6 @@ fun PartidaRow(
     onEdit: (PartidaEntity) -> Unit
 ) {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
-    // Mapear IDs a nombres
     val jugador1Nombre = jugadoresList.find { it.JugadorId == partida.jugador1Id }?.Nombres ?: "Jugador 1"
     val jugador2Nombre = jugadoresList.find { it.JugadorId == partida.jugador2Id }?.Nombres ?: "Jugador 2"
     val ganadorNombre = jugadoresList.find { it.JugadorId == partida.ganadorId }?.Nombres ?: "N/A"
@@ -125,6 +121,7 @@ fun PartidaRow(
                 IconButton(onClick = { onEdit(partida) }) {
                     Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = Color(0xFF4CAF50))
                 }
+
                 IconButton(onClick = { onDelete(partida) }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = Color.Red)
                 }
