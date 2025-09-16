@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,17 +22,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.registrojugadores.data.local.entity.JugadorEntity
 import com.example.registrojugadores.data.local.entity.PartidaEntity
+import com.example.registrojugadores.presentation.jugadores.JugadorViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun PartidaListScreen(
-    viewModel: PartidaViewModel = hiltViewModel(),
+    partidaViewModel: PartidaViewModel = hiltViewModel(),
+    jugadorViewModel: JugadorViewModel = hiltViewModel(),
     onCreate: () -> Unit,
     onEdit: (PartidaEntity) -> Unit
 ) {
-    val partidas = viewModel.partidas.collectAsState()
+    val partidas = partidaViewModel.partidas.collectAsState()
+    val jugadoresList by jugadorViewModel.jugadorList.collectAsState(initial = emptyList())
 
     Scaffold(
         floatingActionButton = {
@@ -72,7 +77,8 @@ fun PartidaListScreen(
                 items(partidas.value) { partida ->
                     PartidaRow(
                         partida = partida,
-                        onDelete = { viewModel.deletePartida(it) },
+                        jugadoresList = jugadoresList,
+                        onDelete = { partidaViewModel.deletePartida(it) },
                         onEdit = onEdit
                     )
                 }
@@ -81,13 +87,20 @@ fun PartidaListScreen(
     }
 }
 
+
 @Composable
 fun PartidaRow(
     partida: PartidaEntity,
+    jugadoresList: List<JugadorEntity>,
     onDelete: (PartidaEntity) -> Unit,
     onEdit: (PartidaEntity) -> Unit
 ) {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // Mapear IDs a nombres
+    val jugador1Nombre = jugadoresList.find { it.JugadorId == partida.jugador1Id }?.Nombres ?: "Jugador 1"
+    val jugador2Nombre = jugadoresList.find { it.JugadorId == partida.jugador2Id }?.Nombres ?: "Jugador 2"
+    val ganadorNombre = jugadoresList.find { it.JugadorId == partida.ganadorId }?.Nombres ?: "N/A"
 
     Card(
         elevation = CardDefaults.cardElevation(14.dp),
@@ -102,9 +115,9 @@ fun PartidaRow(
         ) {
             Column {
                 Text("Fecha: ${formatter.format(partida.fecha)}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text("Jugador 1: ${partida.jugador1Id}", fontSize = 16.sp)
-                Text("Jugador 2: ${partida.jugador2Id}", fontSize = 16.sp)
-                Text("Ganador: ${partida.ganadorId ?: "N/A"}", fontSize = 16.sp)
+                Text("Jugador 1: $jugador1Nombre", fontSize = 16.sp)
+                Text("Jugador 2: $jugador2Nombre", fontSize = 16.sp)
+                Text("Ganador: $ganadorNombre", fontSize = 16.sp)
                 Text("Finalizada: ${if (partida.esFinalizada) "Sí" else "No"}", fontSize = 16.sp)
             }
 
