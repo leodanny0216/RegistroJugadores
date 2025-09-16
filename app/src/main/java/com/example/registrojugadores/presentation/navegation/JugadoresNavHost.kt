@@ -8,21 +8,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.registrojugadores.data.local.entity.JugadorEntity
+import com.example.registrojugadores.data.local.entity.PartidaEntity
 import com.example.registrojugadores.presentation.home.DashboardScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorListScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorViewModel
+import com.example.registrojugadores.presentation.partida.PartidaListScreen
+import com.example.registrojugadores.presentation.partida.PartidaScreen
+import com.example.registrojugadores.presentation.partida.PartidaViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun JugadoresNavHost(
     navHostController: NavHostController,
-    jugadorViewModel: JugadorViewModel
+    jugadorViewModel: JugadorViewModel = hiltViewModel(),
+    partidaViewModel: PartidaViewModel = hiltViewModel()
 ) {
     NavHost(
         navController = navHostController,
@@ -39,10 +45,10 @@ fun JugadoresNavHost(
             JugadorListScreen(
                 jugadorList = jugadorList,
                 onEdit = { jugador ->
-                    navHostController.navigate(Screen.Jugador(jugador.JugadorId))
+                    navHostController.navigate("jugador/${jugador.JugadorId}")
                 },
                 onCreate = {
-                    navHostController.navigate(Screen.Jugador(null))
+                    navHostController.navigate("jugador/null")
                 },
                 onDelete = { jugador ->
                     jugadorViewModel.delete(jugador)
@@ -50,10 +56,11 @@ fun JugadoresNavHost(
             )
         }
 
-        composable<Screen.Jugador> { backStackEntry ->
-            val jugadorId = backStackEntry.toRoute<Screen.Jugador>().jugadorId
-            val scope = rememberCoroutineScope()
+        composable("jugador/{jugadorId}") { backStackEntry ->
+            val jugadorIdArg = backStackEntry.arguments?.getString("jugadorId")
+            val jugadorId = jugadorIdArg?.toIntOrNull()
             var jugador by remember { mutableStateOf<JugadorEntity?>(null) }
+            val scope = rememberCoroutineScope()
 
             LaunchedEffect(jugadorId) {
                 if (jugadorId != null) {
@@ -79,5 +86,36 @@ fun JugadoresNavHost(
             )
         }
 
+        composable("partidaList") {
+            val partidaList by partidaViewModel.partidas.collectAsState()
+            PartidaListScreen(
+                viewModel = partidaViewModel,
+                onEdit = { partida ->
+                    navHostController.navigate("partida/${partida.partidaId}")
+                },
+                onCreate = {
+                    navHostController.navigate("partida/null")
+                }
+            )
+        }
+
+        composable("partida/{partidaId}") { backStackEntry ->
+            val partidaIdArg = backStackEntry.arguments?.getString("partidaId")
+            val partidaId = partidaIdArg?.toIntOrNull()
+            var partida by remember { mutableStateOf<PartidaEntity?>(null) }
+            val scope = rememberCoroutineScope()
+
+            LaunchedEffect(partidaId) {
+                if (partidaId != null) {
+                    partida = partidaViewModel.getPartidaById(partidaId)
+                }
+            }
+
+            PartidaScreen(
+                partida = partida,
+                viewModel = partidaViewModel,
+                onCancel = { navHostController.popBackStack() }
+            )
+        }
     }
 }
