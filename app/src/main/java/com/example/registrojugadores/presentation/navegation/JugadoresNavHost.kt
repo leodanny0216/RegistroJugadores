@@ -87,9 +87,12 @@ fun JugadoresNavHost(
         }
 
         composable("partidaList") {
-            val partidaList by partidaViewModel.partidas.collectAsState()
+            val partidaViewModel: PartidaViewModel = hiltViewModel()
+            val jugadorViewModel: JugadorViewModel = hiltViewModel()
+
             PartidaListScreen(
-                viewModel = partidaViewModel,
+                partidaViewModel = partidaViewModel,
+                jugadorViewModel = jugadorViewModel,
                 onEdit = { partida ->
                     navHostController.navigate("partida/${partida.partidaId}")
                 },
@@ -99,24 +102,16 @@ fun JugadoresNavHost(
             )
         }
 
-        // En tu archivo de navegación
         composable("partida/{partidaId}") { backStackEntry ->
             val partidaIdArg = backStackEntry.arguments?.getString("partidaId")
             val partidaId = partidaIdArg?.toIntOrNull()
-            var partida by remember { mutableStateOf<PartidaEntity?>(null) }
-
-            LaunchedEffect(partidaId) {
-                if (partidaId != null) {
-                    partida = partidaViewModel.getPartidaById(partidaId)
-                }
-            }
 
             PartidaScreen(
                 navController = navHostController,
-                partida = partida,
-                viewModel = partidaViewModel,
+                partidaId = partidaId,
                 onCancel = { navHostController.popBackStack() }
             )
         }
+
     }
 }
