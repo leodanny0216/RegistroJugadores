@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "RegistroJugadores"
 include(":app")
+include(":app")
+ 

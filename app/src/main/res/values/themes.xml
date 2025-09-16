@@ -2,4 +2,6 @@
 <resources>
 
     <style name="Theme.RegistroJugadores" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.LeodannyMaria_Ap2_P1" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
