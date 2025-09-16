@@ -59,15 +59,16 @@ class PartidaViewModel @Inject constructor(
         _gameState.update { it.copy(playerSelection = player) }
     }
 
-    fun startGame(jugador1Id: Int, jugador2Id: Int) {
+    fun startGame(jugador1Id: Int?, jugador2Id: Int?) {
         _gameState.update {
             it.copy(
                 gameStarted = true,
-                jugador1Id = jugador1Id,
-                jugador2Id = jugador2Id
+                jugador1Id = jugador1Id ?: 0, // Si es null, asigna 0
+                jugador2Id = jugador2Id ?: 0  // Si es null, asigna 0
             )
         }
     }
+
 
     fun onCellClick(index: Int) {
         if (_gameState.value.board[index] != null || _gameState.value.winner != null) {
