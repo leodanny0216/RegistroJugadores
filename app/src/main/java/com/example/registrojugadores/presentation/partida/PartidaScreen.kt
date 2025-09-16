@@ -3,6 +3,8 @@ package com.example.registrojugadores.presentation.partida
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -18,41 +20,50 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.registrojugadores.data.local.entity.JugadorEntity
 import com.example.registrojugadores.data.local.entity.PartidaEntity
-import java.util.Date
+import com.example.registrojugadores.presentation.jugadores.JugadorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PartidaScreen(
     navController: NavController,
-    partida: PartidaEntity? = null,
-    viewModel: PartidaViewModel = hiltViewModel(),
+    partidaId: Int? = null,
+    partidaViewModel: PartidaViewModel = hiltViewModel(),
+    jugadorViewModel: JugadorViewModel = hiltViewModel(),
     onCancel: () -> Unit
 ) {
-    val gameState by viewModel.gameState.collectAsState()
+    val gameState by partidaViewModel.gameState.collectAsState()
+    val jugadoresList by jugadorViewModel.jugadorList.collectAsState(initial = emptyList())
 
     var showGame by remember { mutableStateOf(false) }
-    var jugador1Id by remember { mutableStateOf(partida?.jugador1Id?.toString() ?: "") }
-    var jugador2Id by remember { mutableStateOf(partida?.jugador2Id?.toString() ?: "") }
-    var errorJugador1 by remember { mutableStateOf<String?>(null) }
-    var errorJugador2 by remember { mutableStateOf<String?>(null) }
+    var showJugadorList by remember { mutableStateOf(false) }
+    var selectedJugadorFor by remember { mutableStateOf(1) } // 1 = jugador1, 2 = jugador2
+
+    var jugador1 by remember { mutableStateOf<JugadorEntity?>(null) }
+    var jugador2 by remember { mutableStateOf<JugadorEntity?>(null) }
+    var partida by remember { mutableStateOf<PartidaEntity?>(null) }
+
+    LaunchedEffect(partidaId) {
+        if (partidaId != null) {
+            partida = partidaViewModel.getPartidaById(partidaId)
+        }
+    }
 
     if (showGame) {
-        // Pantalla del juego
         GameScreen(
             gameState = gameState,
-            onCellClick = viewModel::onCellClick,
-            onRestartGame = viewModel::restartGame,
+            jugadoresList = jugadoresList,
+            onCellClick = partidaViewModel::onCellClick,
+            onRestartGame = partidaViewModel::restartGame,
             onBack = {
-                navController.navigate("partidaList") {
-                    popUpTo("partidaList") { inclusive = true }
-                }
+                showGame = false
             }
         )
     } else {
-        // Pantalla de configuración de la partida
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -103,23 +114,33 @@ fun PartidaScreen(
                 ) {
                     Text("Seleccionar Jugadores", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
+                    // Jugador 1
                     OutlinedTextField(
-                        value = jugador1Id,
-                        onValueChange = { jugador1Id = it },
-                        label = { Text("ID Jugador 1") },
-                        isError = errorJugador1 != null,
-                        modifier = Modifier.fillMaxWidth()
+                        value = jugador1?.Nombres ?: "",
+                        onValueChange = {},
+                        label = { Text("Jugador 1") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedJugadorFor = 1
+                                showJugadorList = true
+                            },
+                        readOnly = true
                     )
-                    errorJugador1?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
 
+                    // Jugador 2
                     OutlinedTextField(
-                        value = jugador2Id,
-                        onValueChange = { jugador2Id = it },
-                        label = { Text("ID Jugador 2") },
-                        isError = errorJugador2 != null,
-                        modifier = Modifier.fillMaxWidth()
+                        value = jugador2?.Nombres ?: "",
+                        onValueChange = {},
+                        label = { Text("Jugador 2") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedJugadorFor = 2
+                                showJugadorList = true
+                            },
+                        readOnly = true
                     )
-                    errorJugador2?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
 
                     Text("Jugador 1 será X, Jugador 2 será O", fontSize = 16.sp)
 
@@ -141,17 +162,8 @@ fun PartidaScreen(
 
                         Button(
                             onClick = {
-                                val j1 = jugador1Id.toIntOrNull()
-                                val j2 = jugador2Id.toIntOrNull()
-
-                                if (j1 == null) errorJugador1 = "ID Jugador 1 requerido"
-                                else errorJugador1 = null
-
-                                if (j2 == null) errorJugador2 = "ID Jugador 2 requerido"
-                                else errorJugador2 = null
-
-                                if (j1 != null && j2 != null) {
-                                    viewModel.startGame(j1, j2)
+                                if (jugador1 != null && jugador2 != null) {
+                                    partidaViewModel.startGame(jugador1!!.JugadorId, jugador2!!.JugadorId)
                                     showGame = true
                                 }
                             },
@@ -169,12 +181,48 @@ fun PartidaScreen(
             }
         }
     }
+
+    // Diálogo para seleccionar jugador
+    if (showJugadorList) {
+        Dialog(onDismissRequest = { showJugadorList = false }) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    items(jugadoresList) { jugador ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    if (selectedJugadorFor == 1) jugador1 = jugador
+                                    else jugador2 = jugador
+                                    showJugadorList = false
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(jugador.Nombres, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(
     gameState: GameUiState,
+    jugadoresList: List<JugadorEntity>,
     onCellClick: (Int) -> Unit,
     onRestartGame: () -> Unit,
     onBack: () -> Unit
@@ -220,9 +268,10 @@ fun GameScreen(
         ) {
             GameBoard(
                 uiState = gameState,
+                jugadoresList = jugadoresList,
                 onCellClick = onCellClick,
                 onRestartGame = onRestartGame,
-                onExitGame = onBack // <-- Al presionar “Salir”, regresa a la lista
+                onExitGame = onBack
             )
         }
     }
@@ -231,14 +280,24 @@ fun GameScreen(
 @Composable
 fun GameBoard(
     uiState: GameUiState,
+    jugadoresList: List<JugadorEntity>,
     onCellClick: (Int) -> Unit,
     onRestartGame: () -> Unit,
-    onExitGame: () -> Unit  // <-- Nuevo callback
+    onExitGame: () -> Unit
 ) {
+    val jugador1Nombre = jugadoresList.find { it.JugadorId == uiState.jugador1Id }?.Nombres ?: "Jugador 1"
+    val jugador2Nombre = jugadoresList.find { it.JugadorId == uiState.jugador2Id }?.Nombres ?: "Jugador 2"
+
     val gameStatus = when {
-        uiState.winner != null -> "🏆 ¡Ganador: ${uiState.winner.symbol}!"
+        uiState.winner != null -> {
+            val ganadorNombre = if (uiState.winner == Player.X) jugador1Nombre else jugador2Nombre
+            "🏆 ¡Ganador: $ganadorNombre!"
+        }
         uiState.isDraw -> "🤝 ¡Es un empate!"
-        else -> "Turno de: ${uiState.currentPlayer.symbol}"
+        else -> {
+            val turnoNombre = if (uiState.currentPlayer == Player.X) jugador1Nombre else jugador2Nombre
+            "Turno de: $turnoNombre"
+        }
     }
 
     Text(
@@ -247,6 +306,7 @@ fun GameBoard(
         fontWeight = FontWeight.Bold,
         color = Color.White
     )
+
     Spacer(modifier = Modifier.height(20.dp))
 
     Column {
@@ -283,7 +343,6 @@ fun GameBoard(
         }
     }
 }
-
 
 @Composable
 private fun BoardCell(
