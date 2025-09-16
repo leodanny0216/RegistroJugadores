@@ -54,17 +54,16 @@ fun DashboardScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF5F5F5), Color(0xFF0D47A1)) // Azul oscuro
+                        colors = listOf(Color(0xFFF5F5F5), Color(0xFF0D47A1))
                     )
                 )
-
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Gestión de Jugadores",
+                text = "Gestión de Jugadores y Partidas",
                 style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -91,6 +90,25 @@ fun DashboardScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            Button(
+                onClick = { navController.navigate("partidaList") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF4CAF50),
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Partidas",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
+
