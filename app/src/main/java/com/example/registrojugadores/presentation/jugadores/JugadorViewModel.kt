@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.registrojugadores.data.local.entity.JugadorEntity
 import com.example.registrojugadores.data.repository.JugadoresRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class JugadorViewModel @Inject constructor(
     private val repository: JugadoresRepository
 ) : ViewModel() {
