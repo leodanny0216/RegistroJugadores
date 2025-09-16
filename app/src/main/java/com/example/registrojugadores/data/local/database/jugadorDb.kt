@@ -16,7 +16,7 @@ import com.example.registrojugadores.data.local.entity.PartidaEntity
     version = 5,
     exportSchema = false
 )
-@TypeConverters(RoomConverters::class) // Para fechas
+@TypeConverters(RoomConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun jugadorDao(): JugadorDao
     abstract fun partidaDao(): PartidaDao
