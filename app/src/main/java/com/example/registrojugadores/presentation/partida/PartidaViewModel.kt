@@ -21,9 +21,11 @@ class PartidaViewModel @Inject constructor(
     private val _partidas = MutableStateFlow<List<PartidaEntity>>(emptyList())
     val partidas: StateFlow<List<PartidaEntity>> = _partidas.asStateFlow()
 
-    // Estado para el juego Tic-Tac-Toe
     private val _gameState = MutableStateFlow(GameUiState())
     val gameState: StateFlow<GameUiState> = _gameState.asStateFlow()
+
+    val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -42,6 +44,16 @@ class PartidaViewModel @Inject constructor(
         id: Int? = null
     ) {
         viewModelScope.launch {
+            if (jugador1Id == jugador2Id) {
+                _errorMessage.value = "Los jugadores no pueden ser el mismo."
+                return@launch
+            }
+
+            if (esFinalizada && ganadorId == null) {
+                _errorMessage.value = "No se puede finalizar la partida sin un ganador."
+                return@launch
+            }
+
             val partida = PartidaEntity(
                 partidaId = id,
                 fecha = fecha,
@@ -50,30 +62,35 @@ class PartidaViewModel @Inject constructor(
                 ganadorId = ganadorId,
                 esFinalizada = esFinalizada
             )
-            repository.save(partida)
-        }
-    }
 
-    // Funciones para el juego Tic-Tac-Toe
-    fun selectPlayer(player: Player) {
-        _gameState.update { it.copy(playerSelection = player) }
+            repository.save(partida)
+            _errorMessage.value = null
+        }
     }
 
     fun startGame(jugador1Id: Int?, jugador2Id: Int?) {
+        if (jugador1Id == null || jugador2Id == null) {
+            _errorMessage.value = "Debe seleccionar ambos jugadores antes de iniciar."
+            return
+        }
+
+        if (jugador1Id == jugador2Id) {
+            _errorMessage.value = "Los jugadores no pueden ser el mismo."
+            return
+        }
+
         _gameState.update {
             it.copy(
                 gameStarted = true,
-                jugador1Id = jugador1Id ?: 0, // Si es null, asigna 0
-                jugador2Id = jugador2Id ?: 0  // Si es null, asigna 0
+                jugador1Id = jugador1Id,
+                jugador2Id = jugador2Id
             )
         }
+        _errorMessage.value = null
     }
 
-
     fun onCellClick(index: Int) {
-        if (_gameState.value.board[index] != null || _gameState.value.winner != null) {
-            return
-        }
+        if (_gameState.value.board[index] != null || _gameState.value.winner != null) return
 
         val newBoard = _gameState.value.board.toMutableList()
         newBoard[index] = _gameState.value.currentPlayer
@@ -90,7 +107,6 @@ class PartidaViewModel @Inject constructor(
             )
         }
 
-        // Si hay un ganador o empate, guardar la partida automáticamente
         if (newWinner != null || isDraw) {
             val ganadorId = when (newWinner) {
                 Player.X -> _gameState.value.jugador1Id
@@ -117,9 +133,9 @@ class PartidaViewModel @Inject constructor(
 
     private fun checkWinner(board: List<Player?>): Player? {
         val winningLines = listOf(
-            listOf(0, 1, 2), listOf(3, 4, 5), listOf(6, 7, 8), // Horizontales
-            listOf(0, 3, 6), listOf(1, 4, 7), listOf(2, 5, 8), // Verticales
-            listOf(0, 4, 8), listOf(2, 4, 6) // Diagonales
+            listOf(0, 1, 2), listOf(3, 4, 5), listOf(6, 7, 8),
+            listOf(0, 3, 6), listOf(1, 4, 7), listOf(2, 5, 8),
+            listOf(0, 4, 8), listOf(2, 4, 6)
         )
 
         for (line in winningLines) {
@@ -132,28 +148,14 @@ class PartidaViewModel @Inject constructor(
     }
 
     fun deletePartida(partida: PartidaEntity) {
-        viewModelScope.launch {
-            repository.delete(partida)
-        }
+        viewModelScope.launch { repository.delete(partida) }
     }
 
-    fun getPartidaById(id: Int?): PartidaEntity? {
-        return _partidas.value.find { it.partidaId == id }
-    }
+    fun getPartidaById(id: Int?): PartidaEntity? =
+        _partidas.value.find { it.partidaId == id }
 }
 
 enum class Player(val symbol: String) {
     X("X"),
     O("O")
 }
-
-data class GameUiState(
-    val board: List<Player?> = List(9) { null },
-    val currentPlayer: Player = Player.X,
-    val winner: Player? = null,
-    val isDraw: Boolean = false,
-    val playerSelection: Player? = null,
-    val gameStarted: Boolean = false,
-    val jugador1Id: Int = 0,
-    val jugador2Id: Int = 0
-)
