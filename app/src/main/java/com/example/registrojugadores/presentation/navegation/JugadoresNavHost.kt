@@ -99,11 +99,11 @@ fun JugadoresNavHost(
             )
         }
 
+        // En tu archivo de navegación
         composable("partida/{partidaId}") { backStackEntry ->
             val partidaIdArg = backStackEntry.arguments?.getString("partidaId")
             val partidaId = partidaIdArg?.toIntOrNull()
             var partida by remember { mutableStateOf<PartidaEntity?>(null) }
-            val scope = rememberCoroutineScope()
 
             LaunchedEffect(partidaId) {
                 if (partidaId != null) {
