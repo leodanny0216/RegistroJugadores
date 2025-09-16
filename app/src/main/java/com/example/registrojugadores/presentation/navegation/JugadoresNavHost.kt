@@ -112,6 +112,7 @@ fun JugadoresNavHost(
             }
 
             PartidaScreen(
+                navController = navHostController,
                 partida = partida,
                 viewModel = partidaViewModel,
                 onCancel = { navHostController.popBackStack() }

@@ -19,12 +19,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.registrojugadores.data.local.entity.PartidaEntity
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PartidaScreen(
+    navController: NavController,
     partida: PartidaEntity? = null,
     viewModel: PartidaViewModel = hiltViewModel(),
     onCancel: () -> Unit
@@ -43,7 +45,11 @@ fun PartidaScreen(
             gameState = gameState,
             onCellClick = viewModel::onCellClick,
             onRestartGame = viewModel::restartGame,
-            onBack = { showGame = false }
+            onBack = {
+                navController.navigate("partidaList") {
+                    popUpTo("partidaList") { inclusive = true }
+                }
+            }
         )
     } else {
         // Pantalla de configuración de la partida
@@ -52,7 +58,7 @@ fun PartidaScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Configurar Partida",
+                            text = "Crear Partida",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
@@ -215,7 +221,8 @@ fun GameScreen(
             GameBoard(
                 uiState = gameState,
                 onCellClick = onCellClick,
-                onRestartGame = onRestartGame
+                onRestartGame = onRestartGame,
+                onExitGame = onBack // <-- Al presionar “Salir”, regresa a la lista
             )
         }
     }
@@ -225,7 +232,8 @@ fun GameScreen(
 fun GameBoard(
     uiState: GameUiState,
     onCellClick: (Int) -> Unit,
-    onRestartGame: () -> Unit
+    onRestartGame: () -> Unit,
+    onExitGame: () -> Unit  // <-- Nuevo callback
 ) {
     val gameStatus = when {
         uiState.winner != null -> "🏆 ¡Ganador: ${uiState.winner.symbol}!"
@@ -233,7 +241,12 @@ fun GameBoard(
         else -> "Turno de: ${uiState.currentPlayer.symbol}"
     }
 
-    Text(text = gameStatus, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+    Text(
+        text = gameStatus,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White
+    )
     Spacer(modifier = Modifier.height(20.dp))
 
     Column {
@@ -251,13 +264,26 @@ fun GameBoard(
 
     Spacer(modifier = Modifier.height(20.dp))
 
-    Button(
-        onClick = onRestartGame,
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text("Reiniciar Juego", fontSize = 18.sp)
+        Button(
+            onClick = onRestartGame,
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+        ) {
+            Text("Reiniciar Juego", fontSize = 18.sp)
+        }
+
+        Button(
+            onClick = onExitGame,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Salir del Juego", fontSize = 18.sp)
+        }
     }
 }
+
 
 @Composable
 private fun BoardCell(
