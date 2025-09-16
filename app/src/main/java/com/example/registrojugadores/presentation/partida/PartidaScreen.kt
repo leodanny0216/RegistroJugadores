@@ -38,10 +38,11 @@ fun PartidaScreen(
 ) {
     val gameState by partidaViewModel.gameState.collectAsState()
     val jugadoresList by jugadorViewModel.jugadorList.collectAsState(initial = emptyList())
+    val errorMessage by partidaViewModel.errorMessage.collectAsState()
 
     var showGame by remember { mutableStateOf(false) }
     var showJugadorList by remember { mutableStateOf(false) }
-    var selectedJugadorFor by remember { mutableStateOf(1) } // 1 = jugador1, 2 = jugador2
+    var selectedJugadorFor by remember { mutableStateOf(1) }
 
     var jugador1 by remember { mutableStateOf<JugadorEntity?>(null) }
     var jugador2 by remember { mutableStateOf<JugadorEntity?>(null) }
@@ -60,44 +61,24 @@ fun PartidaScreen(
             onCellClick = partidaViewModel::onCellClick,
             onRestartGame = partidaViewModel::restartGame,
             onBack = {
-                showGame = false
+                navController.navigate("partidaList") {
+                    popUpTo("partidaList") { inclusive = true }
+                }
             }
         )
     } else {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = {
-                        Text(
-                            text = "Crear Partida",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Gray,
-                        titleContentColor = Color.White
-                    ),
-                    navigationIcon = {
-                        IconButton(onClick = onCancel) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
-                        }
-                    }
+                    title = { Text("Crear Partida", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                    navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Default.ArrowBack, contentDescription = "Volver") } }
                 )
             }
         ) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))
-                        )
-                    )
+                    .background(Brush.verticalGradient(listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))))
                     .padding(padding)
                     .padding(20.dp),
                 contentAlignment = Alignment.TopCenter
@@ -105,42 +86,40 @@ fun PartidaScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Color.Gray.copy(alpha = 0.95f),
-                            shape = RoundedCornerShape(16.dp)
-                        )
+                        .background(Color.Gray.copy(alpha = 0.95f), shape = RoundedCornerShape(16.dp))
                         .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text("Seleccionar Jugadores", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
-                    // Jugador 1
                     OutlinedTextField(
                         value = jugador1?.Nombres ?: "",
                         onValueChange = {},
                         label = { Text("Jugador 1") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                selectedJugadorFor = 1
-                                showJugadorList = true
-                            },
+                            .clickable { selectedJugadorFor = 1; showJugadorList = true },
                         readOnly = true
                     )
 
-                    // Jugador 2
                     OutlinedTextField(
                         value = jugador2?.Nombres ?: "",
                         onValueChange = {},
                         label = { Text("Jugador 2") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                selectedJugadorFor = 2
-                                showJugadorList = true
-                            },
+                            .clickable { selectedJugadorFor = 2; showJugadorList = true },
                         readOnly = true
                     )
+
+                    if (!errorMessage.isNullOrEmpty()) {
+                        Text(
+                            text = errorMessage ?: "",
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
 
                     Text("Jugador 1 será X, Jugador 2 será O", fontSize = 16.sp)
 
@@ -151,9 +130,7 @@ fun PartidaScreen(
                         Button(
                             onClick = onCancel,
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
+                            modifier = Modifier.weight(1f).padding(end = 8.dp)
                         ) {
                             Icon(Icons.Default.Close, contentDescription = "Cancelar", tint = Color.White)
                             Spacer(modifier = Modifier.width(6.dp))
@@ -164,13 +141,15 @@ fun PartidaScreen(
                             onClick = {
                                 if (jugador1 != null && jugador2 != null) {
                                     partidaViewModel.startGame(jugador1!!.JugadorId, jugador2!!.JugadorId)
-                                    showGame = true
+                                    if (partidaViewModel.errorMessage.value.isNullOrEmpty()) {
+                                        showGame = true
+                                    }
+                                } else {
+                                    partidaViewModel._errorMessage.value = "Debe seleccionar ambos jugadores"
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 8.dp)
+                            modifier = Modifier.weight(1f).padding(start = 8.dp)
                         ) {
                             Icon(Icons.Default.Check, contentDescription = "Iniciar Juego", tint = Color.White)
                             Spacer(modifier = Modifier.width(6.dp))
@@ -182,21 +161,10 @@ fun PartidaScreen(
         }
     }
 
-    // Diálogo para seleccionar jugador
     if (showJugadorList) {
         Dialog(onDismissRequest = { showJugadorList = false }) {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color.White,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
+            Surface(shape = RoundedCornerShape(16.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                LazyColumn(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     items(jugadoresList) { jugador ->
                         Row(
                             modifier = Modifier
@@ -217,6 +185,7 @@ fun PartidaScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
