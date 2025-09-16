@@ -57,7 +57,7 @@ fun JugadorListScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1)) // Azul oscuro
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))
                     )
                 )
 
