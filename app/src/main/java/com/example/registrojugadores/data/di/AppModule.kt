@@ -3,6 +3,7 @@ package com.example.registrojugadores.data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.registrojugadores.data.local.dao.JugadorDao
+import com.example.registrojugadores.data.local.dao.LogroDao
 import com.example.registrojugadores.data.local.dao.PartidaDao
 import com.example.registrojugadores.data.local.database.AppDatabase
 import com.example.registrojugadores.data.repository.JugadoresRepository
@@ -34,7 +35,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideLogroDao(db:AppDatabase): LogroDao = db.LogroDao()
+
+    @Provides
+    @Singleton
     fun provideJugadoresRepository(dao: JugadorDao): JugadoresRepository {
         return JugadoresRepository(dao)
     }
+
 }

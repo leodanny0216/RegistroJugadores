@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.registrojugadores.presentation.jugadores.JugadorViewModel
+import com.example.registrojugadores.presentation.logros.LogroViewModel
 import com.example.registrojugadores.presentation.partida.PartidaViewModel
 import com.example.registrojugadores.presentation.navegation.JugadoresNavHost
 import com.example.registrojugadores.ui.theme.RegistroJugadoresTheme
@@ -23,11 +24,13 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val jugadorViewModel: JugadorViewModel = hiltViewModel()
                 val partidaViewModel: PartidaViewModel = hiltViewModel()
+                val logroViewModel: LogroViewModel = hiltViewModel()
 
                 JugadoresNavHost(
                     navHostController = navController,
                     jugadorViewModel = jugadorViewModel,
-                    partidaViewModel = partidaViewModel
+                    partidaViewModel = partidaViewModel,
+                    logroViewModel = logroViewModel
                 )
             }
         }

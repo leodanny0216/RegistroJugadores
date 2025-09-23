@@ -150,7 +150,6 @@ fun EditPartidaScreen(
                 Button(
                     onClick = {
                         if (jugador1 != null && jugador2 != null && partida != null) {
-
                             partidaViewModel.savePartida(
                                 fecha = partida!!.fecha,
                                 jugador1Id = jugador1!!.JugadorId!!,
@@ -162,8 +161,10 @@ fun EditPartidaScreen(
                             onCancel()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                    modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF009688)), // Teal
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
                 ) {
                     Icon(Icons.Default.Check, contentDescription = "Guardar", tint = Color.White)
                     Spacer(modifier = Modifier.width(4.dp))
