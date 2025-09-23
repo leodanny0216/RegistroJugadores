@@ -47,7 +47,7 @@ fun LogroListScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFE3F2FD), Color(0xFF1565C0))
+                        colors = listOf(Color(0xFFEFB8C8), Color(0xFFEFB8C8))
                     )
                 )
                 .padding(paddingValues)
@@ -85,7 +85,7 @@ fun LogroRow(
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.Black)
     ) {
         Row(
             modifier = Modifier
@@ -120,12 +120,9 @@ fun LogroRow(
 
             Row {
                 IconButton(onClick = { onEdit(logro) }) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Editar",
-                        tint = Color(0xFF1976D2)
-                    )
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color(0xFF1976D2))
                 }
+
                 IconButton(onClick = { onDelete(logro) }) {
                     Icon(
                         Icons.Default.Delete,
