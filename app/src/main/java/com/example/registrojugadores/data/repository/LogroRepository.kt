@@ -10,6 +10,7 @@ class LogroRepository @Inject constructor(
 ) {
     suspend fun saveLogro(logro: LogroEntity) = dao.save(logro)
 
+
     suspend fun find(id: Int): LogroEntity? = dao.find(id)
 
     suspend fun delete(logro: LogroEntity) = dao.delete(logro)
