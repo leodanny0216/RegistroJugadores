@@ -42,7 +42,7 @@ fun PartidaListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreate,
-                containerColor = Color(0xFF4CAF50),
+                containerColor = Color(0xFF26C6DA), // Azul verdoso bonito
                 contentColor = Color.White
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Partida")
@@ -54,7 +54,7 @@ fun PartidaListScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF1565C0))
                     )
                 )
                 .padding(paddingValues)
@@ -86,6 +86,7 @@ fun PartidaListScreen(
         }
     }
 }
+
 @Composable
 fun PartidaRow(
     partida: PartidaEntity,
@@ -119,7 +120,7 @@ fun PartidaRow(
 
             Row {
                 IconButton(onClick = { onEdit(partida) }) {
-                    Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = Color(0xFF4CAF50))
+                    Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = Color(0xFF26C6DA)) // Mismo azul verdoso
                 }
 
                 IconButton(onClick = { onDelete(partida) }) {
