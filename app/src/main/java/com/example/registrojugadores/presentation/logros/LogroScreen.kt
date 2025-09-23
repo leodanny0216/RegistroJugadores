@@ -87,12 +87,12 @@ fun LogroScreen(
             OutlinedTextField(
                 value = jugadorSeleccionado,
                 onValueChange = { jugadorSeleccionado = it },
-                label = { Text("Jugador", color = Color.Black) }, // ← label negro
+                label = { Text("Jugador", color = Color.Black) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { showDropdown = true },
                 readOnly = true,
-                textStyle = LocalTextStyle.current.copy(color = Color.Black) // ← texto del campo negro
+                textStyle = LocalTextStyle.current.copy(color = Color.Black)
             )
             DropdownMenu(
                 expanded = showDropdown,
@@ -103,7 +103,7 @@ fun LogroScreen(
                         text = {
                             Text(
                                 jugador.Nombres,
-                                color = Color.Black, // ← nombre en negro
+                                color = Color.Black,
                                 fontWeight = FontWeight.Bold
                             )
                         },
@@ -141,7 +141,7 @@ fun LogroScreen(
         OutlinedTextField(
             value = fecha,
             onValueChange = { },
-            label = { Text("Fecha", color = Color.Black) }, // ← label negro
+            label = { Text("Fecha", color = Color.Black) },
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.DateRange,
@@ -151,7 +151,7 @@ fun LogroScreen(
             },
             readOnly = true,
             modifier = Modifier.fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(color = Color.Black) // ← texto del campo negro
+            textStyle = LocalTextStyle.current.copy(color = Color.Black)
         )
 
 
@@ -191,7 +191,7 @@ fun LogroScreen(
                     val fechaDate = try { dateFormat.parse(fecha) } catch (e: Exception) { null }
 
                     val result = viewModel.validarYAgregar(
-                        logro?.logroId,  // ← pasa el ID si existe
+                        logro?.logroId,
                         jugador?.JugadorId,
                         descripcion,
                         fechaDate,
