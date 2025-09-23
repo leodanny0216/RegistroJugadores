@@ -1,6 +1,5 @@
 package com.example.registrojugadores.presentation.logros
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.registrojugadores.data.local.entity.LogroEntity
@@ -20,14 +19,11 @@ class LogroViewModel @Inject constructor(
     private val _logroList = MutableStateFlow<List<LogroEntity>>(emptyList())
     val logroList: StateFlow<List<LogroEntity>> get() = _logroList
 
-    init {
-        loadLogros()
-    }
+    init { loadLogros() }
 
     private fun loadLogros() {
         viewModelScope.launch {
             logroRepository.getAll().collect { lista ->
-                Log.d("LogroViewModel", "Lista recibida: ${lista.size}")
                 _logroList.value = lista
             }
         }
@@ -52,6 +48,7 @@ class LogroViewModel @Inject constructor(
     }
 
     fun validarYAgregar(
+        logroId: Int? = null,
         jugadorId: Int?,
         descripcion: String,
         fecha: Date?,
@@ -62,19 +59,25 @@ class LogroViewModel @Inject constructor(
             descripcion.isBlank() -> LogroFormResult(false, "Debe ingresar una descripción")
             fecha == null -> LogroFormResult(false, "Debe seleccionar una fecha")
             else -> {
-                agregar(jugadorId, descripcion, partidaId, fecha)
+                guardarLogro(logroId, jugadorId, descripcion, fecha, partidaId)
                 LogroFormResult(true)
             }
         }
     }
 
-    private fun agregar(jugadorId: Int, descripcion: String, partidaId: Int? = null, fecha: Date) {
+    private fun guardarLogro(
+        logroId: Int? = null,
+        jugadorId: Int,
+        descripcion: String,
+        fecha: Date,
+        partidaId: Int? = null
+    ) {
         val logro = LogroEntity(
-            logroId = null,
-            fecha = fecha,
+            logroId = logroId,
             jugadorId = jugadorId,
-            partidaId = partidaId,
-            descripcion = descripcion
+            descripcion = descripcion,
+            fecha = fecha,
+            partidaId = partidaId
         )
         saveLogro(logro)
     }
