@@ -1,5 +1,6 @@
 package com.example.registrojugadores.presentation.logros
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +67,11 @@ fun LogroScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFEFB8C8), Color(0xFFEFB8C8))
+                )
+            )
             .padding(16.dp)
     ) {
         Text(
@@ -75,16 +83,16 @@ fun LogroScreen(
         )
 
         Spacer(Modifier.height(16.dp))
-
         Box {
             OutlinedTextField(
                 value = jugadorSeleccionado,
                 onValueChange = { jugadorSeleccionado = it },
-                label = { Text("Jugador") },
+                label = { Text("Jugador", color = Color.Black) }, // ← label negro
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { showDropdown = true },
-                readOnly = true
+                readOnly = true,
+                textStyle = LocalTextStyle.current.copy(color = Color.Black) // ← texto del campo negro
             )
             DropdownMenu(
                 expanded = showDropdown,
@@ -92,7 +100,13 @@ fun LogroScreen(
             ) {
                 jugadores.forEach { jugador ->
                     DropdownMenuItem(
-                        text = { Text(jugador.Nombres) },
+                        text = {
+                            Text(
+                                jugador.Nombres,
+                                color = Color.Black, // ← nombre en negro
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
                         onClick = {
                             jugadorSeleccionado = jugador.Nombres
                             showDropdown = false
@@ -107,8 +121,9 @@ fun LogroScreen(
         OutlinedTextField(
             value = descripcion,
             onValueChange = { descripcion = it },
-            label = { Text("Descripción") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Descripción", color = Color.Black) },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = LocalTextStyle.current.copy(color = Color.Black)
         )
 
         Spacer(Modifier.height(8.dp))
@@ -116,8 +131,9 @@ fun LogroScreen(
         OutlinedTextField(
             value = partidaId,
             onValueChange = { partidaId = it },
-            label = { Text("ID de la partida (opcional)") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("ID de la partida (opcional)", color = Color.Black) },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = LocalTextStyle.current.copy(color = Color.Black)
         )
 
         Spacer(Modifier.height(8.dp))
@@ -125,7 +141,7 @@ fun LogroScreen(
         OutlinedTextField(
             value = fecha,
             onValueChange = { },
-            label = { Text("Fecha") },
+            label = { Text("Fecha", color = Color.Black) }, // ← label negro
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.DateRange,
@@ -134,8 +150,10 @@ fun LogroScreen(
                 )
             },
             readOnly = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = LocalTextStyle.current.copy(color = Color.Black) // ← texto del campo negro
         )
+
 
         if (showDatePicker) {
             val calendar = Calendar.getInstance()
@@ -173,6 +191,7 @@ fun LogroScreen(
                     val fechaDate = try { dateFormat.parse(fecha) } catch (e: Exception) { null }
 
                     val result = viewModel.validarYAgregar(
+                        logro?.logroId,  // ← pasa el ID si existe
                         jugador?.JugadorId,
                         descripcion,
                         fechaDate,
@@ -189,6 +208,7 @@ fun LogroScreen(
             ) {
                 Text(if (logro == null) "Guardar" else "Actualizar")
             }
+
         }
     }
 }
