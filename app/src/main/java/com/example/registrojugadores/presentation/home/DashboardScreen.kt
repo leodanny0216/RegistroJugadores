@@ -44,7 +44,7 @@ fun DashboardScreen(navController: NavController) {
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF0D47A1)
+                    containerColor = Color(0xFF1565C0)
                 )
             )
         }
@@ -54,7 +54,10 @@ fun DashboardScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF5F5F5), Color(0xFF0D47A1))
+                        colors = listOf(
+                            Color(0xFFE3F2FD),
+                            Color(0xFF1565C0)
+                        )
                     )
                 )
                 .padding(innerPadding)
@@ -77,10 +80,19 @@ fun DashboardScreen(navController: NavController) {
                 onClick = { navController.navigate("jugadorList") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            listOf(
+                                Color(0xFF42A5F5),
+                                Color(0xFF0D47A1)
+                            )
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0D47A1),
+                    containerColor = Color.Transparent,
                     contentColor = Color.White
                 )
             ) {
@@ -95,10 +107,19 @@ fun DashboardScreen(navController: NavController) {
                 onClick = { navController.navigate("partidaList") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            listOf(
+                                Color(0xFF81C784),
+                                Color(0xFF388E3C)
+                            )
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50),
+                    containerColor = Color.Transparent,
                     contentColor = Color.White
                 )
             ) {
@@ -108,7 +129,34 @@ fun DashboardScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold
                 )
             }
+
+            Button(
+                onClick = { navController.navigate("logroList") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            listOf(
+                                Color(0xFF4DB6AC),
+                                Color(0xFF00695C)
+                            )
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Logros",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
         }
     }
 }
-
