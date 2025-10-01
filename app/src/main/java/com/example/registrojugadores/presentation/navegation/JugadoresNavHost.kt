@@ -13,10 +13,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.registrojugadores.data.local.entity.JugadorEntity
+import com.example.registrojugadores.data.local.entity.LogroEntity
 import com.example.registrojugadores.presentation.home.DashboardScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorListScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorScreen
 import com.example.registrojugadores.presentation.jugadores.JugadorViewModel
+import com.example.registrojugadores.presentation.logros.LogroListScreen
+import com.example.registrojugadores.presentation.logros.LogroScreen
+import com.example.registrojugadores.presentation.logros.LogroViewModel
 import com.example.registrojugadores.presentation.partida.EditPartidaScreen
 import com.example.registrojugadores.presentation.partida.PartidaListScreen
 import com.example.registrojugadores.presentation.partida.PartidaScreen
@@ -27,6 +31,7 @@ import kotlinx.coroutines.launch
 fun JugadoresNavHost(
     navHostController: NavHostController,
     jugadorViewModel: JugadorViewModel = hiltViewModel(),
+    logroViewModel: LogroViewModel,
     partidaViewModel: PartidaViewModel = hiltViewModel()
 ) {
     NavHost(
@@ -127,6 +132,35 @@ fun JugadoresNavHost(
                 partidaId = partidaId,
                 partidaViewModel = partidaViewModel,
                 jugadorViewModel = jugadorViewModel,
+                onCancel = { navHostController.popBackStack() }
+            )
+        }
+
+        composable("logroList") {
+            val logroList by logroViewModel.logroList.collectAsState()
+            val jugadorList by jugadorViewModel.jugadorList.collectAsState()
+
+            LogroListScreen(
+                logroList = logroList,
+                jugadores = jugadorList,
+                onCreate = { navHostController.navigate("logro/null") },
+                onEdit = { navHostController.navigate("logro/${it.logroId}") },
+                onDelete = { logroViewModel.delete(it) }
+            )
+        }
+
+        composable("logro/{logroId}") { backStackEntry ->
+            val logroId = backStackEntry.arguments?.getString("logroId")?.toIntOrNull()
+            var logro by remember { mutableStateOf<LogroEntity?>(null) }
+            val jugadorList by jugadorViewModel.jugadorList.collectAsState()
+            LaunchedEffect(logroId) {
+                if (logroId != null) logro = logroViewModel.getLogroById(logroId)
+            }
+
+            LogroScreen(
+                viewModel = logroViewModel,
+                logro = logro,
+                jugadores = jugadorList,
                 onCancel = { navHostController.popBackStack() }
             )
         }

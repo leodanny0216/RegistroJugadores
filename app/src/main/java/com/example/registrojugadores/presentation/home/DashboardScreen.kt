@@ -1,20 +1,10 @@
 package com.example.registrojugadores.presentation.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
+import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,20 +33,16 @@ fun DashboardScreen(navController: NavController) {
                         )
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF0D47A1)
+                colors = centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF1565C0)
                 )
             )
-        }
+        },
+        containerColor = Color(0xFFE3F2FD)
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF5F5F5), Color(0xFF0D47A1))
-                    )
-                )
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -73,42 +59,86 @@ fun DashboardScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Button(
-                onClick = { navController.navigate("jugadorList") },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0D47A1),
-                    contentColor = Color.White
-                )
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(listOf(Color(0xFF42A5F5), Color(0xFF0D47A1))),
+                        shape = RoundedCornerShape(12.dp)
+                    )
             ) {
-                Text(
-                    text = "Jugadores",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Button(
+                    onClick = { navController.navigate("jugadorList") },
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "Jugadores",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
-            Button(
-                onClick = { navController.navigate("partidaList") },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50),
-                    contentColor = Color.White
-                )
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(listOf(Color(0xFF81C784), Color(0xFF388E3C))),
+                        shape = RoundedCornerShape(12.dp)
+                    )
             ) {
-                Text(
-                    text = "Partidas",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Button(
+                    onClick = { navController.navigate("partidaList") },
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "Partidas",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            listOf(Color(0xFFE53935), Color(0xFFD32F2F)) // Degradado rojo
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Button(
+                    onClick = { navController.navigate("logroList") },
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "Logros",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
         }
     }
 }
-
