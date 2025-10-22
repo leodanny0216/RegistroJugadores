@@ -16,7 +16,7 @@ import com.example.registrojugadores.data.local.entity.PartidaEntity
         PartidaEntity::class
         , LogroEntity::class
     ],
-    version = 6,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(RoomConverters::class)

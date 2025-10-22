@@ -3,6 +3,7 @@ package com.example.registrojugadores.presentation.partida
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,6 +41,7 @@ fun PartidaScreen(
     val gameState by partidaViewModel.gameState.collectAsState()
     val jugadoresList by jugadorViewModel.jugadorList.collectAsState(initial = emptyList())
     val errorMessage by partidaViewModel.errorMessage.collectAsState()
+    val partidasList by partidaViewModel.partidas.collectAsState()
 
     var showGame by remember { mutableStateOf(false) }
     var showJugadorList by remember { mutableStateOf(false) }
@@ -47,6 +50,8 @@ fun PartidaScreen(
     var jugador1 by remember { mutableStateOf<JugadorEntity?>(null) }
     var jugador2 by remember { mutableStateOf<JugadorEntity?>(null) }
     var partida by remember { mutableStateOf<PartidaEntity?>(null) }
+
+    var partidaIdTexto by remember { mutableStateOf("") }
 
     LaunchedEffect(partidaId) {
         if (partidaId != null) {
@@ -58,104 +63,110 @@ fun PartidaScreen(
         GameScreen(
             gameState = gameState,
             jugadoresList = jugadoresList,
+            partidasList = partidasList,
+            partidaViewModel = partidaViewModel,
+            showGameSetter = { showGame = it },
             onCellClick = partidaViewModel::onCellClick,
             onRestartGame = partidaViewModel::restartGame,
             onBack = {
-                navController.navigate("partidaList") {
-                    popUpTo("partidaList") { inclusive = true }
-                }
+                showGame = false
             }
         )
-    } else {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Crear Partida", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                    navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Default.ArrowBack, contentDescription = "Volver") } }
+        return
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Crear / Unirse Partida",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onCancel) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF1976D2))
+                    )
                 )
-            }
-        ) { padding ->
-            Box(
+                .padding(padding)
+                .padding(20.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))))
-                    .padding(padding)
-                    .padding(20.dp),
-                contentAlignment = Alignment.TopCenter
+                    .fillMaxWidth()
+                    .background(Color.Gray.copy(alpha = 0.95f), shape = RoundedCornerShape(16.dp))
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Column(
+
+
+
+                // ✅ Selección jugadores
+                Text("Crear nueva partida", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+
+                OutlinedTextField(
+                    value = jugador1?.Nombres ?: "",
+                    onValueChange = {},
+                    label = { Text("Jugador 1") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Gray.copy(alpha = 0.95f), shape = RoundedCornerShape(16.dp))
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .clickable { selectedJugadorFor = 1; showJugadorList = true },
+                    readOnly = true
+                )
+
+                OutlinedTextField(
+                    value = jugador2?.Nombres ?: "",
+                    onValueChange = {},
+                    label = { Text("Jugador 2") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedJugadorFor = 2; showJugadorList = true },
+                    readOnly = true
+                )
+
+                if (!errorMessage.isNullOrEmpty()) {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Seleccionar Jugadores", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = onCancel,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                    ) { Text("Cancelar", color = Color.White) }
 
-                    OutlinedTextField(
-                        value = jugador1?.Nombres ?: "",
-                        onValueChange = {},
-                        label = { Text("Jugador 1") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectedJugadorFor = 1; showJugadorList = true },
-                        readOnly = true
-                    )
-
-                    OutlinedTextField(
-                        value = jugador2?.Nombres ?: "",
-                        onValueChange = {},
-                        label = { Text("Jugador 2") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectedJugadorFor = 2; showJugadorList = true },
-                        readOnly = true
-                    )
-
-                    if (!errorMessage.isNullOrEmpty()) {
-                        Text(
-                            text = errorMessage ?: "",
-                            color = Color.Red,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    }
-
-                    Text("Jugador 1 será X, Jugador 2 será O", fontSize = 16.sp)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Button(
-                            onClick = onCancel,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                            modifier = Modifier.weight(1f).padding(end = 8.dp)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Cancelar", tint = Color.White)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Cancelar")
-                        }
-
-                        Button(
-                            onClick = {
-                                if (jugador1 != null && jugador2 != null) {
-                                    partidaViewModel.startGame(jugador1!!.JugadorId, jugador2!!.JugadorId)
-                                    if (partidaViewModel.errorMessage.value.isNullOrEmpty()) {
-                                        showGame = true
-                                    }
-                                } else {
-                                    partidaViewModel._errorMessage.value = "Debe seleccionar ambos jugadores"
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                            modifier = Modifier.weight(1f).padding(start = 8.dp)
-                        ) {
-                            Icon(Icons.Default.Check, contentDescription = "Iniciar Juego", tint = Color.White)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Iniciar Juego")
-                        }
-                    }
+                    Button(
+                        onClick = {
+                            if (jugador1 != null && jugador2 != null) {
+                                partidaViewModel.startGame(jugador1!!.JugadorId, jugador2!!.JugadorId)
+                                showGame = true
+                            } else {
+                                partidaViewModel.setErrorMessage("Debe seleccionar ambos jugadores")
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    ) { Text("Iniciar Juego", color = Color.White) }
                 }
             }
         }
@@ -163,7 +174,13 @@ fun PartidaScreen(
 
     if (showJugadorList) {
         Dialog(onDismissRequest = { showJugadorList = false }) {
-            Surface(shape = RoundedCornerShape(16.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
                 LazyColumn(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     items(jugadoresList) { jugador ->
                         Row(
@@ -192,10 +209,15 @@ fun PartidaScreen(
 fun GameScreen(
     gameState: GameUiState,
     jugadoresList: List<JugadorEntity>,
+    partidasList: List<PartidaEntity>,
+    partidaViewModel: PartidaViewModel,
+    showGameSetter: (Boolean) -> Unit,
     onCellClick: (Int) -> Unit,
     onRestartGame: () -> Unit,
     onBack: () -> Unit
 ) {
+    var partidaIdTexto by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -204,21 +226,21 @@ fun GameScreen(
                         text = "Tic-Tac-Toe",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
+                            fontWeight = FontWeight.Bold
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Gray,
-                    titleContentColor = Color.White
-                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Gray,
+                    titleContentColor = Color.White
+                )
             )
         }
     ) { padding ->
@@ -228,13 +250,80 @@ fun GameScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF0D47A1), Color(0xFF0D47A1))
+                        colors = listOf(Color(0xFF0D47A1), Color(0xFF1976D2))
                     )
                 )
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // --- Partidas disponibles con filtro y refrescar ---
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = partidaIdTexto,
+                    onValueChange = { valor ->
+                        if (valor.all { it.isDigit() }) partidaIdTexto = valor
+                    },
+                    label = { Text("ID Partida") },
+                    modifier = Modifier.width(140.dp)
+                )
+
+                IconButton(
+                    onClick = { partidaViewModel.refreshPartidas() },
+                    modifier = Modifier.size(50.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refrescar",
+                        tint = Color.Red
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Partidas disponibles",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Color.DarkGray, shape = RoundedCornerShape(10.dp))
+            ) {
+                items(partidasList.filter {
+                    partidaIdTexto.isEmpty() || it.partidaId.toString() == partidaIdTexto
+                }) { p ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                partidaViewModel.startGame(p.jugador1Id, p.jugador2Id)
+                                showGameSetter(true)
+                            }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "ID: ${p.partidaId} - J1: ${p.jugador1Id} vs J2: ${p.jugador2Id}",
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // --- Tablero de juego ---
             GameBoard(
                 uiState = gameState,
                 jugadoresList = jugadoresList,
@@ -301,14 +390,14 @@ fun GameBoard(
             onClick = onRestartGame,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
         ) {
-            Text("Reiniciar Juego", fontSize = 18.sp)
+            Text("Reiniciar", fontSize = 18.sp)
         }
 
         Button(
             onClick = onExitGame,
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
-            Text("Salir del Juego", fontSize = 18.sp)
+            Text("Salir", fontSize = 18.sp)
         }
     }
 }
@@ -323,7 +412,7 @@ private fun BoardCell(
             .size(100.dp)
             .padding(4.dp)
             .background(Color.LightGray)
-            .clickable { onCellClick() },
+            .clickable(enabled = player == null) { onCellClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
